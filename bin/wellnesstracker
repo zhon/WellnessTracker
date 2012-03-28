@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+$: << File.dirname(__FILE__)+'/../lib'
+
+
+require 'watir'
+require 'watir/ie'
+
+
+Watir::Browser.default = 'ie'
+ie = Watir::Browser.new
+#ie.speed = :zippy
+
+
+
