@@ -1,14 +1,45 @@
 #!/usr/bin/env ruby
 $: << File.dirname(__FILE__)+'/../lib'
 
-
+require 'wellnesstracker/settings'
 require 'watir'
 require 'watir/ie'
 
 
 Watir::Browser.default = 'ie'
 ie = Watir::Browser.new
-#ie.speed = :zippy
+ie.speed = :zippy
+
+def login(ie)
+  username = ie.text_field(:id, 'ctl00_ContentPlaceHolderforBody_txtUserName')
+  if username.exists?
+    username.set Settings[:username]
+    ie.text_field(:id, 'ctl00_ContentPlaceHolderforBody_txtPassword')
+      .set Settings[:password]
+
+    ie.button(:id, 'ctl00_ContentPlaceHolderforBody_btnLogin').click
+  end
+end
+
+TIME_VALUES = [30, 60, 90]
+def log_activity(ie, time, day, notes=nil)
+  raise "Invalid time '#{time}' Must be #{TIME_VALUES}" unless TIME_VALUES.include? time
+  ie.link(title: /Activity Tracker/).click
+  ie.link(title: /Physical Activity Recorder/).click
+
+  ie.select_list(:id, 'ctl00_RightContentHolder_ddlActivities')
+    .select("#{time} min physical activity Day #{day}")
+
+  sleep 1
+  ie.text_field(id: /txtDescrip/).set(notes) if notes
+  ie.button(type: 'submit').click
+end
 
 
+url = 'https://wellsuite.com/wellness/ws/secure/?grid=452655612834'
+
+ie.goto url
+
+login(ie)
+log_activity(ie, 90, 25, "canyons with scouts")
 
